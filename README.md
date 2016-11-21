@@ -11,7 +11,7 @@ Each computer is named as a 'heretic'. When a heretic speaks, last note played b
 
 Sometimes the last note will be missed, this cause both heretics to speak together. (there will be pauses after last note played, so if trigger note is not recognised i.e. not from listening heretic's 'voice', the heretic responds and the original heretic continues to speak. 
 
-This is a state of 'hysteria'. Here, both heretics switch to a 'surreal' freq range which is a fancy way of saying that they move to a common range. Gain increases rapidly and when it reaches a threshold, they system resets.
+This is a state of 'hysteria'. Here, both heretics switch to a 'surreal' freq range which is a fancy way of saying that they move to a common range. Gain increases rapidly and when it reaches a threshold, the system resets.
 
 Usage
 -----
