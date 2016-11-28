@@ -33,7 +33,8 @@ public:
     // Functions to handle noteOn/noteOff
     void noteOn();
     void noteOff();
-    
+
+private:
     // Aubio variables
     ofxAubioOnset onset;
     ofxAubioPitch pitch;

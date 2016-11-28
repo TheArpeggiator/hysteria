@@ -62,16 +62,18 @@ void ofApp::setup()
     }
     note.noteNumber = 38;
     
-    gain = 90;
-    pos = 0;
+    BPM = 80;
     lengthOfOneBeatInSamples = (int)((SAMPLE_RATE*60.0f)/BPM);
     
     noteReverb.setT60(3);
     
+    // Audio I/O Setup
+    gain = 200; // base gain
+    pos = 0;
     playback = false;
     micOn = true;
     midiCounter = 0;
-    silenceCounter = 0;
+    silenceCounter = 0;     // Counter to check if(!playback)
 }
 
 //--------------------------------------------------------------
@@ -81,17 +83,15 @@ void ofApp::update()
     note.noteNumber = noteVal[randNumber];
     midiCounter+=noteVal[randNumber];
     
-    if(midiCounter>300)
+    if(midiCounter>666)
     {
         note.noteNumber = 55;
         midiCounter = 0;
-        gain = 300;
+        gain = 600;
     }
     else
-        gain = 90;
-    randNumber = rand() % 200 + 80;
-    BPM = randNumber;
-    //BPM = 100;
+        gain = 200;
+    BPM = rand() % 150 + 80;
     lengthOfOneBeatInSamples = (int)((SAMPLE_RATE*60.0f)/BPM);
     
     // Aubio stuff
@@ -117,6 +117,7 @@ void ofApp::draw()
     {
         if(playback)
             playback = false;
+        //BPM = rand() % 150 + 80;
     }
 
     // draw
@@ -150,7 +151,7 @@ void ofApp::audioOut(float *output, int bufferSize, int nChannels)
             noteOn();
             if(!playback)
                 silenceCounter++;
-            if(silenceCounter>12)
+            if(silenceCounter>16)
             {
                 playback = true;
                 silenceCounter = 0;
