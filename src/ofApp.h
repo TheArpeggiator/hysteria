@@ -1,59 +1,79 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxAubio.h"
+#include "ofxGui.h"
 #include "ofxStk.h"
-#include "ofxParticles.h"
-#include "ofxFft.h"
 
-//-----------------------------------------------------------------------------
-// Preprocessor definitions
-//-----------------------------------------------------------------------------
-#define MY_SRATE         44100            // sample rate
-#define MY_CHANNELS      2                // number of channels
-#define MY_BUFFERHISTORY 50               // number of buffers to save
-#define MY_BUFFERSIZE    512              // number of frames in a buffer
-#define MY_NBUFFERS      2                // number of buffers latency
-#define MY_PIE           3.14159265358979 // for convenience
+#define SAMPLE_RATE 44100
+
+struct MusicalNote {
+    stk::StkFloat noteNumber;
+    long voiceTag;
+};
 
 class ofApp : public ofBaseApp{
     
 public:
     void setup();
+    void exit();
+    
     void update();
     void draw();
     
-    void keyPressed(int key);
-    void keyReleased(int key);
-    void mouseMoved(int x, int y );
-    void mouseDragged(int x, int y, int button);
-    void mousePressed(int x, int y, int button);
-    void mouseReleased(int x, int y, int button);
-    void mouseEntered(int x, int y);
+    // Audio callback functions
+    void audioIn(float *input, int bufferSize, int nChannels);
+    void audioOut(float *output,int bufferSize,int nChannels);
     
-    void audioOut(float * input, int bufferSize, int nChannels);
-
-private:
+    void onsetEvent(float & time);
+    void beatEvent(float & time);
     
-    // Our sound stream object
-    ofSoundStream soundStream;
+    // Functions to handle noteOn/noteOff
+    void noteOn();
+    void noteOff();
     
-    // Audio params for left and right channel
-    float leftGain;
-    float rightGain;
+    // Aubio variables
+    ofxAubioOnset onset;
+    ofxAubioPitch pitch;
+    ofxAubioBeat beat;
+    ofxAubioMelBands bands;
     
-    // Vectors for our left- and right-channel waveforms
-    vector<float> left;
-    vector<float> right;
+    ofxPanel pitchGui;
+    ofxFloatSlider midiPitch;
+    ofxFloatSlider pitchConfidence;
     
-    // STK audio units
+    ofxPanel beatGui;
+    bool gotBeat;
+    ofxFloatSlider bpm;
     
-    stk::FileWvIn audio;
+    ofxPanel onsetGui;
+    bool gotOnset;
+    ofxFloatSlider onsetThreshold;
+    ofxFloatSlider onsetNovelty;
+    ofxFloatSlider onsetThresholdedNovelty;
     
-    // Audio processing variables
-    bool playAudio;
-    bool useMic;
+    ofxPanel bandsGui;
+    ofPolyline bandPlot;
     
-    // Fft variables
-    ofxFft *fftLeft;
-    ofxFft *fftRight;
+    // Stk classes object definition
+    stk::Voicer *voicer;
+    stk::NRev noteReverb;
+    
+    MusicalNote note;
+    
+    // C2 Major Scale (!!subject to change!!)
+    int noteVal[8] = {12,14,16,17,19,21,23,24};
+    
+    // Volume parameter
+    float gain;
+    float value,value1,value2;
+    
+    // Variables to handle beats
+    float lengthOfOneBeatInSamples;
+    int pos;
+    int BPM;
+    
+    
+    // Extraneous variables
+    int randNumber;
 };
