@@ -25,6 +25,8 @@ public:
     void audioIn(float *input, int bufferSize, int nChannels);
     void audioOut(float *output,int bufferSize,int nChannels);
     
+    void keyPressed(int key);
+    
     void onsetEvent(float & time);
     void beatEvent(float & time);
     
@@ -62,7 +64,7 @@ public:
     MusicalNote note;
     
     // C2 Major Scale (!!subject to change!!)
-    int noteVal[8] = {12,14,16,17,19,21,23,24};
+    int noteVal[8] = {24,26,28,29,31,33,35,36};
     
     // Volume parameter
     float gain;
@@ -76,4 +78,7 @@ public:
     
     // Extraneous variables
     int randNumber;
+    bool playback;
+    bool micOn;
+    int midiCounter;
 };
