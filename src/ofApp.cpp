@@ -62,16 +62,16 @@ void ofApp::setup()
     }
     note.noteNumber = 38;
     
-    gain = 300;
-    BPM = 120;
+    gain = 90;
     pos = 0;
     lengthOfOneBeatInSamples = (int)((SAMPLE_RATE*60.0f)/BPM);
     
-    noteReverb.setT60(7);
+    noteReverb.setT60(3);
     
-    playback = true;
+    playback = false;
     micOn = true;
     midiCounter = 0;
+    silenceCounter = 0;
 }
 
 //--------------------------------------------------------------
@@ -81,13 +81,17 @@ void ofApp::update()
     note.noteNumber = noteVal[randNumber];
     midiCounter+=noteVal[randNumber];
     
-    if(midiCounter>=1000)
+    if(midiCounter>300)
     {
-        note.noteNumber = 48;
+        note.noteNumber = 55;
         midiCounter = 0;
+        gain = 300;
     }
+    else
+        gain = 90;
     randNumber = rand() % 200 + 80;
     BPM = randNumber;
+    //BPM = 100;
     lengthOfOneBeatInSamples = (int)((SAMPLE_RATE*60.0f)/BPM);
     
     // Aubio stuff
@@ -111,8 +115,8 @@ void ofApp::draw()
     
     if(midiPitch == 60)
     {
-        micOn = !micOn;
-        playback = !playback;
+        if(playback)
+            playback = false;
     }
 
     // draw
@@ -138,21 +142,36 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels)
 
 void ofApp::audioOut(float *output, int bufferSize, int nChannels)
 {
-    if(playback)
+    for (int i = 0; i < bufferSize ; i++)
     {
-        for (int i = 0; i < bufferSize ; i++)
+        pos++;
+        if(fmod(pos,lengthOfOneBeatInSamples)==0)
         {
-            pos++;
-            if(fmod(pos,lengthOfOneBeatInSamples)==0)
-                noteOn();
+            noteOn();
+            if(!playback)
+                silenceCounter++;
+            if(silenceCounter>12)
+            {
+                playback = true;
+                silenceCounter = 0;
+            }
+        }
+    
+        value1 = noteReverb.tick(voicer->tick(),0);
+        value2 = noteReverb.tick(voicer->tick(),1);
         
-            value1 = noteReverb.tick(voicer->tick(),0);
-            value2 = noteReverb.tick(voicer->tick(),1);
+        if(playback)
+        {
             output[2*i] = value1;
             output[2*i+1] = value2;
         }
-        noteOff();
+        else
+        {
+            output[2*i] = 0;
+            output[2*i+1] = 0;
+        }
     }
+    noteOff();
 }
 
 void ofApp::noteOn()

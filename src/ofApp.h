@@ -78,7 +78,11 @@ public:
     
     // Extraneous variables
     int randNumber;
+    int midiCounter;
+    int silenceCounter;
+    
+    // Toggle variables
     bool playback;
     bool micOn;
-    int midiCounter;
+    
 };
