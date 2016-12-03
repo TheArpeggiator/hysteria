@@ -4,15 +4,18 @@
 #include "ofxAubio.h"
 #include "ofxGui.h"
 #include "ofxStk.h"
+#include "ofxParticles.h"
 
 #define SAMPLE_RATE 44100
 
-struct MusicalNote {
+struct MusicalNote
+{
     stk::StkFloat noteNumber;
     long voiceTag;
 };
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp
+{
     
 public:
     void setup();
@@ -33,9 +36,10 @@ public:
     // Functions to handle noteOn/noteOff
     void noteOn();
     void noteOff();
-
+    
 private:
     // Aubio variables
+    // ------------------------------------------------------
     ofxAubioOnset onset;
     ofxAubioPitch pitch;
     ofxAubioBeat beat;
@@ -59,6 +63,7 @@ private:
     ofPolyline bandPlot;
     
     // Stk classes object definition
+    // ------------------------------------------------------
     stk::Voicer *voicer;
     stk::NRev noteReverb;
     
@@ -76,6 +81,20 @@ private:
     int pos;
     int BPM;
     
+    // Particle physics vars
+    // ------------------------------------------------------
+    ofxParticleSystem particleSystem;
+    int pmouseX, pmouseY;
+    ofVec2f pmouseVel;
+    
+    ofxParticleEmitter mouseEmitter, topEmitter, botEmitter, leftEmitter, rightEmitter;
+    float rotAcc, gravAcc, fieldMult, drag;
+    ofFloatPixels vectorField;
+    
+    ofTexture pTex, p1Tex, p2Tex;
+    int displayMode;
+
+    
     
     // Extraneous variables
     int randNumber;
@@ -85,5 +104,5 @@ private:
     // Toggle variables
     bool playback;
     bool micOn;
-    
+    bool readyToMute;
 };
