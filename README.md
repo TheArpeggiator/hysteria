@@ -1,24 +1,21 @@
 # hysteria
-
 Use of the openFrameworks tool to create an audio visual experience
+
+Dependencies required to run this application are:
+openFramework addons - ofxAubio, ofxParticles, ofxStk
 
 Description
 -----------
-
 Have computers taking to each other (basically). 
 Each computer will have an assigned voice. i.e. set freq range. Since range is set, they know what to 'listen' for.
-Each computer is named as a 'heretic'. When a heretic speaks, last note played belongs to one of the the voices. That trigger the other heretic to respond.
+Each computer is named as a 'heretic'. When a heretic speaks, one of the notes being played belongs to one of the other voices. That triggers the other heretic to stop talking.
 
-Sometimes the last note will be missed, this cause both heretics to speak together. (there will be pauses after last note played, so if trigger note is not recognised i.e. not from listening heretic's 'voice', the heretic responds and the original heretic continues to speak. 
-
-This is a state of 'hysteria'. Here, both heretics switch to a 'surreal' freq range which is a fancy way of saying that they move to a common range. Gain increases rapidly and when it reaches a threshold, the system resets.
+Sometimes the last note will be missed, this causes both heretics to speak together. If a heretic is silent for too long, he starts talking again with an exclamation. This system should in theory go on forever. To add more to the confusion, more than two computers should be added to the system. The more unstable it becomes, the more fun it is!
 
 Usage
 -----
-
-Usage code incoming here!
+No real interaction for the listener. Just kick back, relax and watch computers nerding out.
 
 Author
 ------
-
 Rahul Agnihotri (ragni@ccrma.stanford.edu)
