@@ -69,8 +69,10 @@ private:
     
     MusicalNote note;
     
-    // C2 Major Scale (!!subject to change!!)
-    int noteVal[8] = {24,26,28,29,31,33,35,36};
+    // C2,D2,F#2 Major Scale
+    int noteVal[3][8] = {{24,26,28,29,31,33,35,36},
+                         {26,28,30,31,33,35,37,38},
+                         {30,32,34,35,37,39,41,42}};
     
     // Volume parameter
     float gain;
@@ -87,7 +89,7 @@ private:
     int pmouseX, pmouseY;
     ofVec2f pmouseVel;
     
-    ofxParticleEmitter mouseEmitter, topEmitter, botEmitter, leftEmitter, rightEmitter;
+    ofxParticleEmitter silenceEmitter, soundEmitter;
     float rotAcc, gravAcc, fieldMult, drag;
     ofFloatPixels vectorField;
     
@@ -97,6 +99,10 @@ private:
     
     
     // Extraneous variables
+    stk::FileWvIn r2d2;
+    int r2d2Counter;
+    
+    int scale;
     int randNumber;
     int midiCounter;
     int silenceCounter;

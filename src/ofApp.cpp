@@ -27,7 +27,10 @@ void ofApp::setup()
     bands.setup();
     
     ofSoundStreamSetup(nOutputs, nInputs, this);
-
+    r2d2.openFile(ofToDataPath("r2d2-scream.wav",true));
+    stk::Stk::setSampleRate(44100.0);
+    r2d2.setRate(1);
+    
     // setup the gui objects
     int start = 0;
     beatGui.setup("ofxAubioBeat", "settings.xml", start + 10, 10);
@@ -73,29 +76,31 @@ void ofApp::setup()
     micOn = true;
     midiCounter = 0;
     silenceCounter = 0;     // Counter to check if(!playback)
+    scale = 0;
+    r2d2Counter = 0;
     
     // ----------------------------------------------------------
     // Particle physics setup statements
     ofSetFrameRate(60.0);
     ofBackground(0, 0, 0);
-    mouseEmitter.setPosition(ofVec3f(ofGetWidth()/2,ofGetHeight()/2+40));
-    mouseEmitter.posSpread = ofVec3f(10.0,10.0,0.0);
-    mouseEmitter.velSpread = ofVec3f(25.0,25.0);
-    mouseEmitter.life = 10.0;
-    mouseEmitter.lifeSpread = 5.0;
-    mouseEmitter.numPars = 10;
-    mouseEmitter.color = ofColor(200,200,255);
-    mouseEmitter.colorSpread = ofColor(20,20,0);
-    mouseEmitter.size = 32;
+    silenceEmitter.setPosition(ofVec3f(640,400));
+    silenceEmitter.posSpread = ofVec3f(10.0,10.0,0.0);
+    silenceEmitter.velSpread = ofVec3f(25.0,25.0);
+    silenceEmitter.life = 10.0;
+    silenceEmitter.lifeSpread = 5.0;
+    silenceEmitter.numPars = 10;
+    silenceEmitter.color = ofColor(200,200,255);
+    silenceEmitter.colorSpread = ofColor(20,20,0);
+    silenceEmitter.size = 32;
     
-    leftEmitter.setPosition(ofVec3f(ofGetWidth()/2,ofGetHeight()/2+40));
-    leftEmitter.velSpread = ofVec3f(10.0,10);
-    leftEmitter.life = 69;
-    leftEmitter.lifeSpread = 5.0;
-    leftEmitter.numPars = 10.0;
-    leftEmitter.color = ofColor(200,100,100);
-    leftEmitter.colorSpread = ofColor(50,50,50);
-    leftEmitter.size = 32;
+    soundEmitter.setPosition(ofVec3f(640,400));
+    soundEmitter.velSpread = ofVec3f(10.0,10);
+    soundEmitter.life = 69;
+    soundEmitter.lifeSpread = 5.0;
+    soundEmitter.numPars = 10.0;
+    soundEmitter.color = ofColor(200,100,100);
+    soundEmitter.colorSpread = ofColor(50,50,50);
+    soundEmitter.size = 32;
     
     vectorField.allocate(128, 128, 3);
     
@@ -119,12 +124,12 @@ void ofApp::update()
     // STK stuff
     // ----------------------------------------------------------
     randNumber = rand() % 8;
-    note.noteNumber = noteVal[randNumber];
+    note.noteNumber = noteVal[scale][randNumber];
     midiCounter+=noteVal[randNumber];
     
     if(midiCounter>666)
     {
-        note.noteNumber = 48;
+        note.noteNumber = 55;
         midiCounter = 0;
         gain = 700;
     }
@@ -159,9 +164,9 @@ void ofApp::update()
     particleSystem.update(dt, drag);
     
     if(playback)
-        particleSystem.addParticles(leftEmitter);
+        particleSystem.addParticles(soundEmitter);
     if(!playback)
-        particleSystem.addParticles(mouseEmitter);
+        particleSystem.addParticles(silenceEmitter);
 }
 
 void ofApp::exit()
@@ -179,27 +184,13 @@ void ofApp::draw()
     if (pitch.latestPitch && pitchConfidence > 0.85)
         midiPitch = ceil(pitch.latestPitch);
     
-    if(midiPitch == 67)
+    if(midiPitch == 60)
     {
+        r2d2Counter++;
         if(playback)
             playback = false;
-        //BPM = rand() % 150 + 80;
-    }
-    
-    // Particle physics draw parameters
-    if(ofGetKeyPressed('v')){
-        ofSetLineWidth(1.0);
-        ofSetColor(80, 80, 80);
-        ofPushMatrix();
-        ofScale(ofGetWidth()/(float)vectorField.getWidth(), ofGetHeight()/(float)vectorField.getHeight());
-        for(int y = 0; y < vectorField.getHeight(); y++)
-            for(int x=0; x< vectorField.getWidth(); x++){
-                ofColor_<float> c = vectorField.getColor(x, y);
-                ofVec2f dir(c.r,c.g);
-                
-                ofDrawLine(x, y, x+dir.x, y+dir.y);
-            }
-        ofPopMatrix();
+        scale = rand() % 3;
+        soundEmitter.color = ofColor(rand() % 250 + 180,rand() % 250 + 180,rand() % 250 + 180);
     }
     
     ofSetLineWidth(2.0);
@@ -223,6 +214,12 @@ void ofApp::keyPressed(int key)
         playback = !playback;
     if(key == 'm')
         micOn = !micOn;
+    if(key == 'g')
+    {
+        std::cout<<"Width = "<<ofGetWidth()/2<<endl;
+        std::cout<<"Height = "<<ofGetHeight()/2<<endl;
+    }
+    
 }
 
 void ofApp::audioIn(float * input, int bufferSize, int nChannels)
@@ -236,15 +233,29 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels)
 
 void ofApp::audioOut(float *output, int bufferSize, int nChannels)
 {
+    
     for (int i = 0; i < bufferSize ; i++)
     {
+        if(r2d2Counter>=7)
+        {
+            stk::StkFrames frames(bufferSize,1);
+            r2d2.tick(frames);
+            for(int j=0;j<bufferSize;j++)
+            {
+                output[2*j] = frames(j,0);
+                output[2*j+1] = frames(j,0);
+            }
+            playback = true;
+            r2d2Counter = 0;
+        }
+        
         pos++;
         if(fmod(pos,lengthOfOneBeatInSamples)==0)
         {
             noteOn();
             if(!playback)
                 silenceCounter++;
-            if(silenceCounter>16)
+            if(silenceCounter>30)
             {
                 playback = true;
                 silenceCounter = 0;
