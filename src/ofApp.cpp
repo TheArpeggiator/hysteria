@@ -70,7 +70,7 @@ void ofApp::setup()
     noteReverb.setT60(2 );
     
     // Audio I/O setup
-    gain = 200;
+    gain = 600;
     pos = 0;
     playback = false;
     micOn = true;
@@ -125,16 +125,16 @@ void ofApp::update()
     // ----------------------------------------------------------
     randNumber = rand() % 8;
     note.noteNumber = noteVal[scale][randNumber];
-    midiCounter+=noteVal[randNumber];
+    midiCounter+=noteVal[scale][randNumber];
     
-    if(midiCounter>666)
+    if(midiCounter>=1000)
     {
         note.noteNumber = 55;
         midiCounter = 0;
-        gain = 700;
+        gain = 900;
     }
     else
-        gain = 200;
+        gain = 600;
     BPM = rand() % 240 + 100;
     lengthOfOneBeatInSamples = (int)((SAMPLE_RATE*60.0f)/BPM);
     
@@ -233,26 +233,13 @@ void ofApp::audioIn(float * input, int bufferSize, int nChannels)
 
 void ofApp::audioOut(float *output, int bufferSize, int nChannels)
 {
-    
     for (int i = 0; i < bufferSize ; i++)
     {
-        if(r2d2Counter>=7)
-        {
-            stk::StkFrames frames(bufferSize,1);
-            r2d2.tick(frames);
-            for(int j=0;j<bufferSize;j++)
-            {
-                output[2*j] = frames(j,0);
-                output[2*j+1] = frames(j,0);
-            }
-            playback = true;
-            r2d2Counter = 0;
-        }
-        
         pos++;
         if(fmod(pos,lengthOfOneBeatInSamples)==0)
         {
             noteOn();
+            
             if(!playback)
                 silenceCounter++;
             if(silenceCounter>30)
@@ -263,8 +250,10 @@ void ofApp::audioOut(float *output, int bufferSize, int nChannels)
         }
         if(pos>88200)
             pos = 0;
+        
         value1 = noteReverb.tick(voicer->tick(),0);
         value2 = noteReverb.tick(voicer->tick(),1);
+        value = r2d2.tick();
         
         if(playback)
         {

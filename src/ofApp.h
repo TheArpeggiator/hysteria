@@ -70,9 +70,9 @@ private:
     MusicalNote note;
     
     // C2,D2,F#2 Major Scale
-    int noteVal[3][8] = {{24,26,28,29,31,33,35,36},
-                         {26,28,30,31,33,35,37,38},
-                         {30,32,34,35,37,39,41,42}};
+    int noteVal[3][8] = {{31,33,35,36,38,40,42,43},
+                         {29,31,33,34,36,38,40,41},
+                         {25,27,29,30,32,34,36,37}};
     
     // Volume parameter
     float gain;
@@ -99,7 +99,7 @@ private:
     
     
     // Extraneous variables
-    stk::FileWvIn r2d2;
+    stk::FileLoop r2d2;
     int r2d2Counter;
     
     int scale;
